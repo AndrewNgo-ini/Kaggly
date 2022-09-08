@@ -11,6 +11,7 @@
 pandas
 numpy
 sklearn
-transformers
+transformers==4.21.2
+tokenizers==0.12.1
 torch
 datasets
