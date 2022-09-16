@@ -1,6 +1,9 @@
-# ====================================================
-# Model
-# ====================================================
+import torch.nn as nn
+import torch
+
+from transformers import AutoConfig, AutoModel
+from logger import LOGGER
+
 class MeanPooling(nn.Module):
     def __init__(self):
         super(MeanPooling, self).__init__()

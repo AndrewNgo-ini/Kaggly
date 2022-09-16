@@ -1,12 +1,12 @@
-# ====================================================
-# Dataset
-# ====================================================
+import torch
+from torch.utils.data import Dataset
+
 def prepare_input(cfg, text):
     inputs = cfg.tokenizer.encode_plus(
         text, 
         return_tensors=None, 
         add_special_tokens=True, 
-        max_length=CFG.max_len,
+        max_length=cfg.max_len,
         pad_to_max_length=True,
         truncation=True
     )
