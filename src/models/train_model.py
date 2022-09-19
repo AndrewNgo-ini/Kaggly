@@ -3,10 +3,19 @@ import torch.nn as nn
 
 from torch.utils.data import DataLoader
 from config import CFG
-from logger import LOGGER
+from src.utils import LOGGER
 from torch.optim import Adam, SGD, AdamW
 from data.base_dataset import TrainDataset
+from base_model import CustomModel
+from transformers import get_linear_schedule_with_warmup, get_cosine_schedule_with_warmup
+from helper import *
+from utils import *
+import time
+import numpy as np
+import gc
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+OUTPUT_DIR="models"
 
 def train_loop(folds, fold):
     
@@ -98,11 +107,11 @@ def train_loop(folds, fold):
 
         LOGGER.info(f'Epoch {epoch+1} - avg_train_loss: {avg_loss:.4f}  avg_val_loss: {avg_val_loss:.4f}  time: {elapsed:.0f}s')
         LOGGER.info(f'Epoch {epoch+1} - Score: {score:.4f}  Scores: {scores}')
-        if CFG.wandb:
-            wandb.log({f"[fold{fold}] epoch": epoch+1, 
-                       f"[fold{fold}] avg_train_loss": avg_loss, 
-                       f"[fold{fold}] avg_val_loss": avg_val_loss,
-                       f"[fold{fold}] score": score})
+        # if CFG.wandb:
+        #     wandb.log({f"[fold{fold}] epoch": epoch+1, 
+        #                f"[fold{fold}] avg_train_loss": avg_loss, 
+        #                f"[fold{fold}] avg_val_loss": avg_val_loss,
+        #                f"[fold{fold}] score": score})
         
         if best_score > score:
             best_score = score
