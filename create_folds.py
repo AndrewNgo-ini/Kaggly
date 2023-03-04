@@ -8,7 +8,7 @@ import networkx as nx
 from sklearn.model_selection import GroupKFold
 
 
-data_dir = Path("/kaggle/input/learning-equality-curriculum-recommendations")
+data_dir = Path("./")
 
 
 # Load CSVs

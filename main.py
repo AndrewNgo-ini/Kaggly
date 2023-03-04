@@ -7,7 +7,7 @@ d = {
     "commands": None,
     "compute_environment": "LOCAL_MACHINE",
     "deepspeed_config": {},
-    "distributed_type": "MULTI_GPU", # choose from {"NO", "MULTI_GPU"}
+    "distributed_type": "NO", # choose from {"NO", "MULTI_GPU"}
     "downcast_bf16": "no",
     "dynamo_backend": "NO",
     "fsdp_config": {},
@@ -19,7 +19,7 @@ d = {
     "megatron_lm_config": {},
     "mixed_precision": "fp16", # choose from {"no", "bf16", "fp16"}
     "num_machines": 1,
-    "num_processes": 2, # number of gpus
+    "num_processes": 1, # number of gpus
     "rdzv_backend": "static",
     "same_network": True,
     "tpu_name": None,
@@ -53,5 +53,5 @@ if CFG.use_wandb:
 for fold in range(CFG.folds):
 
     print(f" Starting fold {fold} ".center(30, "*"))
-    os.system("accelerate launch train.py --fold $fold")
+    os.system(f"accelerate launch train.py --fold {fold}")
     print("\n\n")
