@@ -20,7 +20,7 @@ corr_df = pd.read_csv(
     data_dir / "correlations.csv"
 )
 topic_df = pd.read_csv(
-    data_dir / "topics.csv"
+    data_dir / "processed_topics.csv"
 )
 
 topic_df = topic_df.rename(
@@ -29,6 +29,7 @@ topic_df = topic_df.rename(
         "title": "topic_title",
         "description": "topic_description",
         "language": "topic_language",
+        "context": "topic_context"
     }
 )
 content_df = content_df.rename(
@@ -44,6 +45,7 @@ content_df = content_df.rename(
 # Fill in blanks and limit the amount of content text
 topic_df["topic_title"].fillna("No topic title", inplace=True)
 topic_df["topic_description"].fillna("No topic description", inplace=True)
+topic_df["topic_context"].fillna("No topic context", inplace=True)
 content_df["content_title"].fillna("No content title", inplace=True)
 content_df["content_description"].fillna("No content description", inplace=True)
 content_df["content_text"].fillna("No content text", inplace=True)
