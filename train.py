@@ -117,7 +117,7 @@ def main(fold):
     eval_dataloader = DataLoader(
         val_ds, 
         collate_fn=data_collator, 
-        batch_size=CFG.batch_size * 2,
+        batch_size=CFG.batch_size // 2,
         num_workers=2,
         pin_memory=True,
         shuffle=False,
