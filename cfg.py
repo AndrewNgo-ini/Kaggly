@@ -5,14 +5,14 @@ import torch
 class CFG:
 
     model_name = "sentence-transformers/all-MiniLM-L6-v2"
-    batch_size = 256
+    batch_size = 128
     output_dir = model_name.split("/")[-1] + "-MNR-tuned"
 
-    folds = 4
+    folds = 1
     lr = 5e-5
     wd = 0.01
     warmup_ratio = 0.1
-    epochs = 2
+    epochs = 20
     evals_per_epoch = 2
     log_per_epoch = 20  
     grad_accum = 1
@@ -22,7 +22,7 @@ class CFG:
 
     topic_cols = ["title", "description"]
     content_cols = ["title", "description", "text"]
-    max_length = 128
+    max_length = 512
     num_proc = 4
     
     tokenized_ds_name = "tokenized.pq"
