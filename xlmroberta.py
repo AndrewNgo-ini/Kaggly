@@ -23,7 +23,7 @@ from transformers import get_cosine_schedule_with_warmup, DataCollatorWithPaddin
 from sklearn.model_selection import StratifiedGroupKFold
 #%env TOKENIZERS_PARALLELISM=true
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+#os.environ['TOKENIZERS_PARALLELISM'] = 'true'
 # =========================================================================================
 # Configurations
 # =========================================================================================
@@ -40,7 +40,7 @@ class CFG:
     decoder_lr = 1e-4
     eps = 1e-6
     betas = (0.9, 0.999)
-    batch_size = 32
+    batch_size = 8
     weight_decay = 0.01
     max_grad_norm = 0.012
     max_len = 512
@@ -76,7 +76,7 @@ def f2_score(y_true, y_pred):
 # Data Loading
 # =========================================================================================
 def read_data(cfg):
-    train = pd.read_csv('./train.csv')
+    train = pd.read_csv('./train.csv').iloc[:100]
     train['title1'].fillna("Title does not exist", inplace = True)
     train['title2'].fillna("Title does not exist", inplace = True)
     correlations = pd.read_csv('./correlations.csv')
@@ -107,6 +107,8 @@ def get_max_length(train, cfg):
         length = len(cfg.tokenizer(text, add_special_tokens = False)['input_ids'])
         lengths.append(length)
     cfg.max_len = max(lengths) + 2 # cls & sep
+    if cfg.max_len > 512:
+        cfg.max_len = 512
     print(f"max_len: {cfg.max_len}")
 
 # =========================================================================================
@@ -429,6 +431,6 @@ train, correlations = read_data(CFG)
 # CV split
 cv_split(train, CFG)
 # Get max length
-get_max_length(train, CFG)
+#get_max_length(train, CFG)
 # Train and evaluate one fold
 train_and_evaluate_one_fold(train, correlations, 0, CFG)
