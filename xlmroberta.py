@@ -76,7 +76,7 @@ def f2_score(y_true, y_pred):
 # Data Loading
 # =========================================================================================
 def read_data(cfg):
-    train = pd.read_csv('./train.csv').iloc[:100]
+    train = pd.read_csv('./train.csv')
     train['title1'].fillna("Title does not exist", inplace = True)
     train['title2'].fillna("Title does not exist", inplace = True)
     correlations = pd.read_csv('./correlations.csv')
@@ -315,7 +315,7 @@ def valid_fn(valid_loader, model, criterion, device, cfg):
 def get_best_threshold(x_val, val_predictions, correlations):
     best_score = 0
     best_threshold = None
-    for thres in np.arange(0.001, 0.1, 0.001):
+    for thres in np.arange(0.0001, 0.01, 0.0001):
         x_val['predictions'] = np.where(val_predictions > thres, 1, 0)
         x_val1 = x_val[x_val['predictions'] == 1]
         x_val1 = x_val1.groupby(['topics_ids'])['content_ids'].unique().reset_index()
