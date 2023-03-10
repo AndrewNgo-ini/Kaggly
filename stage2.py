@@ -77,16 +77,17 @@ def f2_score(y_true, y_pred):
 # =========================================================================================
 def read_data(cfg):
     train = pd.read_csv('./train.csv')
-    train['title1'].fillna("Title does not exist", inplace = True)
-    train['title2'].fillna("Title does not exist", inplace = True)
+    train['title1'].fillna("", inplace = True)
+    train['title2'].fillna("", inplace = True)
     correlations = pd.read_csv('./correlations.csv')
+    val = pd.read_csv('./holdout_stage2.csv')
     # Create feature column
     train['text'] = train['title1'] + '[SEP]' + train['title2']
     print(' ')
     print('-' * 50)
     print(f"train.shape: {train.shape}")
     print(f"correlations.shape: {correlations.shape}")
-    return train, correlations
+    return train, val, correlations
 
 # =========================================================================================
 # CV split
@@ -335,12 +336,15 @@ def get_best_threshold(x_val, val_predictions, correlations):
 # =========================================================================================
 # Train & Evaluate
 # =========================================================================================
-def train_and_evaluate_one_fold(train, correlations, fold, cfg):
+def train_and_evaluate_one_fold(train, val, correlations, fold, cfg):
     print(' ')
     print(f"========== fold: {fold} training ==========")
     # Split train & validation
-    x_train = train[train['fold'] != fold]
-    x_val = train[train['fold'] == fold]
+    #x_train = train[train['fold'] != fold]
+    #x_val = train[train['fold'] == fold]
+    x_train = train
+    x_val = val
+
     valid_labels = x_val['target'].values
     train_dataset = custom_dataset(x_train, cfg)
     valid_dataset = custom_dataset(x_val, cfg)
@@ -427,10 +431,10 @@ def train_and_evaluate_one_fold(train, correlations, fold, cfg):
 # Seed everything
 seed_everything(CFG)
 # Read data
-train, correlations = read_data(CFG)
+train, val, correlations  = read_data(CFG)
 # CV split
-cv_split(train, CFG)
+#cv_split(train, CFG)
 # Get max length
 #get_max_length(train, CFG)
 # Train and evaluate one fold
-train_and_evaluate_one_fold(train, correlations, 0, CFG)
+train_and_evaluate_one_fold(train, val, correlations, 0, CFG)

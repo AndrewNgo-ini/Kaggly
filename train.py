@@ -85,7 +85,8 @@ def main(fold):
     val_ds = tokenized_ds.select(fold_idxs[str(fold)])
     val_cols = ["topic_id", "content_id", "topic_language", "content_language"]
     val_df = combined.loc[fold_idxs[str(fold)], val_cols].reset_index(drop=True).copy()
-    
+    print("save hold out set")
+    val_df.to_csv("holdout.csv", index=False)
     del combined, tokenized_ds
     gc.collect()
     
