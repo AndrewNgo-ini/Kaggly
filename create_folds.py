@@ -42,15 +42,64 @@ content_df = content_df.rename(
     }
 )
 
+import re
+
+def clean_text(text):
+    # Remove HTML and web links
+    text = re.sub(r'<[^>]+>', '', text)
+    text = re.sub(r'http\S+', '', text)
+    
+    # Remove punctuations
+    text = re.sub(r'[^\w\s]', '', text)
+    
+    # Clean whitespaces
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
+
 # Fill in blanks and limit the amount of content text
-topic_df["topic_title"].fillna("No topic title", inplace=True)
-topic_df["topic_description"].fillna("No topic description", inplace=True)
-topic_df["topic_context"].fillna("No topic context", inplace=True)
-content_df["content_title"].fillna("No content title", inplace=True)
-content_df["content_description"].fillna("No content description", inplace=True)
-content_df["content_text"].fillna("No content text", inplace=True)
+topic_df["topic_title"].fillna("", inplace=True)
+topic_df["topic_title"] = topic_df["topic_title"].apply(clean_text)
+# topic_df["topic_title_len"] = topic_df["topic_title"].apply(lambda x: len(x.split()))
+# print('title topic', topic_df["topic_title_len"].describe())
+
+topic_df["topic_description"].fillna("", inplace=True)
+topic_df["topic_description"] = topic_df["topic_description"].apply(clean_text)
+# topic_df["topic_description_len"] = topic_df["topic_description"].apply(lambda x: len(x.split()))
+# print('des topic',topic_df["topic_description_len"].describe())
+
+topic_df["topic_context"].fillna("", inplace=True)
+topic_df["topic_context"] = topic_df["topic_context"].apply(clean_text)
+# topic_df["topic_context_len"] = topic_df["topic_context"].apply(lambda x: len(x.split()))
+# print('context topic', topic_df["topic_context_len"].describe())
+
+
+####Text final 
+topic_df["final_text"] = topic_df["topic_title"] + "[SEP]" + topic_df["topic_description"] + "[SEP]" + topic_df["topic_context"]
+topic_df["final_text_len"] = topic_df["final_text"].apply(lambda x: len(x.split()))
+print('final topic', topic_df["final_text_len"].describe())
+
+content_df["content_title"].fillna("", inplace=True)
+content_df["content_title"] = content_df["content_title"].apply(clean_text)
+# content_df["content_title_len"] = content_df["content_title"].apply(lambda x: len(x.split()))
+# print('title content', content_df["content_title_len"].describe())
+
+content_df["content_description"].fillna("", inplace=True)
+content_df["content_description"] = content_df["content_description"].apply(clean_text)
+# content_df["content_description_len"] = content_df["content_description"].apply(lambda x: len(x.split()))
+# print('des content', content_df["content_description_len"].describe())
+
+content_df["content_text"].fillna("", inplace=True)
+content_df["content_description"] = content_df["content_description"].apply(clean_text)
+# content_df["content_text_len"] = content_df["content_text"].apply(lambda x: len(x.split()))
+# print('text content', content_df["content_text_len"].describe())
 content_df["content_text"] = [x[:300] for x in content_df["content_text"]]
 
+content_df["final_text"] = content_df["content_title"] + "[SEP]" + content_df["content_description"] + "[SEP]" + content_df["content_text"]
+content_df["final_text_len"] = content_df["final_text"].apply(lambda x: len(x.split()))
+print('final content', content_df["final_text_len"].describe())
+
+print()
 # `exploded` has one topic id and one content id per row
 corr_df["content_id"] = [x.split() for x in corr_df["content_ids"]]
 exploded = corr_df.explode("content_id")
