@@ -6,7 +6,42 @@ import pandas as pd
 import numpy as np
 import networkx as nx
 from sklearn.model_selection import GroupKFold
+from tqdm import tqdm 
 
+def create_topic_tree(topics):
+    df = pd.DataFrame()
+    for channel in tqdm(topics['channel'].unique()):
+        channel_df = topics[(topics['channel'] == channel)].reset_index(drop = True)
+        for level in sorted(channel_df.level.unique()):
+            #For level 0, it first creates a topic tree column which is the title of that topic.            
+            if level == 0:
+                topic_tree = channel_df[channel_df['level'] == level]['title'].astype(str)
+                topic_tree_df = pd.DataFrame([channel_df[channel_df['level'] == level][['id']],topic_tree.values]).T
+                topic_tree_df.columns = ['child_id','topic_tree']
+                channel_df = channel_df.merge(topic_tree_df, left_on = 'id', right_on = 'child_id', how = 'left').drop(['child_id'], axis = 1)
+
+            #Once the topic tree column has been created, the parent node and child node is merged on parent_id = child_id
+            topic_df_parent = channel_df[channel_df['level'] == level][['id','title','parent','topic_tree']]
+            topic_df_parent.columns = 'parent_' + topic_df_parent.columns
+
+            topic_df_child = channel_df[channel_df['level'] == level + 1][['id','title','parent','topic_tree']]
+            topic_df_child.columns = 'child_' + topic_df_child.columns
+
+            topic_df_merged = topic_df_parent.merge(topic_df_child, left_on = 'parent_id', right_on = 'child_parent')[['child_id','parent_id','parent_title','child_title','parent_topic_tree']]
+
+            #Topic tree is parent topic tree + title of the current child on that level
+            topic_tree = topic_df_merged['parent_topic_tree'].astype(str) + ' > ' + topic_df_merged['child_title'].astype(str)
+
+            topic_tree_df = pd.DataFrame([topic_df_merged['child_id'].values,topic_tree.values]).T
+            topic_tree_df.columns = ['child_id','topic_tree']
+
+            channel_df = channel_df.merge(topic_tree_df, left_on = 'id', right_on = 'child_id', how = 'left').drop(['child_id'], axis = 1)
+            if 'topic_tree_y' in list(channel_df.columns):
+                channel_df['topic_tree'] = channel_df['topic_tree_x'].combine_first(channel_df['topic_tree_y'])
+                channel_df = channel_df.drop(['topic_tree_x','topic_tree_y'], axis = 1)
+
+        df = pd.concat([df,channel_df])
+    return df
 
 data_dir = Path("./")
 
@@ -20,8 +55,10 @@ corr_df = pd.read_csv(
     data_dir / "correlations.csv"
 )
 topic_df = pd.read_csv(
-    data_dir / "processed_topics.csv"
+    data_dir / "topics.csv"
 )
+
+topic_df = create_topic_tree(topic_df)
 
 topic_df = topic_df.rename(
     columns={
@@ -29,7 +66,7 @@ topic_df = topic_df.rename(
         "title": "topic_title",
         "description": "topic_description",
         "language": "topic_language",
-        "context": "topic_context"
+        "topic_tree": "topic_context"
     }
 )
 content_df = content_df.rename(
@@ -75,7 +112,7 @@ topic_df["topic_context"] = topic_df["topic_context"].apply(clean_text)
 
 
 ####Text final 
-topic_df["topic_final_text"] = topic_df["topic_title"] + "[SEP]" + topic_df["topic_description"] + "[SEP]" + topic_df["topic_context"]
+topic_df["topic_final_text"] = topic_df["topic_title"] + '. ' +topic_df["topic_description"] + '. ' +topic_df["topic_context"]
 topic_df["topic_final_text_len"] = topic_df["topic_final_text"].apply(lambda x: len(x.split()))
 print('final topic', topic_df["topic_final_text_len"].describe())
 
@@ -95,7 +132,7 @@ content_df["content_description"] = content_df["content_description"].apply(clea
 # print('text content', content_df["content_text_len"].describe())
 content_df["content_text"] = [x[:300] for x in content_df["content_text"]]
 
-content_df["content_final_text"] = content_df["content_title"] + "[SEP]" + content_df["content_description"] + "[SEP]" + content_df["content_text"]
+content_df["content_final_text"] = content_df["content_title"] + '. ' +content_df["content_description"] + '. ' + content_df["content_text"]
 content_df["content_final_text_len"] = content_df["content_final_text"].apply(lambda x: len(x.split()))
 print('final content', content_df["content_final_text_len"].describe())
 

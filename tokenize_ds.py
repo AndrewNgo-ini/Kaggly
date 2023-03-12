@@ -25,6 +25,8 @@ def main(show_progress_bars=True):
         topic_texts = [sep.join(cols) for cols in zip(*[batch[c] for c in topic_cols])]
         content_texts = [sep.join(cols) for cols in zip(*[batch[c] for c in content_cols])]
 
+        #print('aa',topic_texts)
+
         tokenized_topic = tokenizer(
             topic_texts, truncation=True, max_length=max_length, padding=False
         )
