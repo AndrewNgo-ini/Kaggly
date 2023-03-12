@@ -30,20 +30,20 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 class CFG:
     print_freq = 500
     num_workers = 4
-    model = "xlm-roberta-base"
+    model = "all-MiniLM-L12-v2"
     tokenizer = AutoTokenizer.from_pretrained(model)
     gradient_checkpointing = False
     num_cycles = 0.5
     warmup_ratio = 0.1
-    epochs = 1
+    epochs = 5
     encoder_lr = 1e-5
     decoder_lr = 1e-4
     eps = 1e-6
     betas = (0.9, 0.999)
-    batch_size = 8
+    batch_size = 128
     weight_decay = 0.01
     max_grad_norm = 0.012
-    max_len = 512
+    max_len = 128
     n_folds = 5
     seed = 42
     
@@ -76,13 +76,14 @@ def f2_score(y_true, y_pred):
 # Data Loading
 # =========================================================================================
 def read_data(cfg):
-    train = pd.read_csv('./train.csv')
+    train = pd.read_csv('./train2.csv')
     train['title1'].fillna("", inplace = True)
     train['title2'].fillna("", inplace = True)
     correlations = pd.read_csv('./correlations.csv')
     val = pd.read_csv('./holdout_stage2.csv')
     # Create feature column
     train['text'] = train['title1'] + '[SEP]' + train['title2']
+    val['text'] = val['title1'] + '[SEP]' + val['title2']
     print(' ')
     print('-' * 50)
     print(f"train.shape: {train.shape}")
@@ -316,7 +317,7 @@ def valid_fn(valid_loader, model, criterion, device, cfg):
 def get_best_threshold(x_val, val_predictions, correlations):
     best_score = 0
     best_threshold = None
-    for thres in np.arange(0.0001, 0.01, 0.0001):
+    for thres in np.arange(0.001, 0.1, 0.001):
         x_val['predictions'] = np.where(val_predictions > thres, 1, 0)
         x_val1 = x_val[x_val['predictions'] == 1]
         x_val1 = x_val1.groupby(['topics_ids'])['content_ids'].unique().reset_index()

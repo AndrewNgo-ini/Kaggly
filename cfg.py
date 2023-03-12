@@ -4,8 +4,8 @@ import torch
 
 class CFG:
 
-    model_name = "sentence-transformers/all-MiniLM-L6-v2"
-    batch_size = 16
+    model_name = "sentence-transformers/all-MiniLM-L12-v2"
+    batch_size = 64
     output_dir = model_name.split("/")[-1] + "-MNR-tuned"
 
     folds = 1
@@ -20,8 +20,10 @@ class CFG:
     scheduler_type = "cosine"
     mixed_precision = "fp16"
 
-    topic_cols = ["title", "description", "context"]
-    content_cols = ["title", "description", "text"]
+    #topic_cols = ["title", "description", "context"]
+    #content_cols = ["title", "description", "text"]
+    topic_cols = ["final_text"]
+    content_cols = ["final_text"]
     max_length = 128
     num_proc = 4
     

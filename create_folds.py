@@ -75,9 +75,9 @@ topic_df["topic_context"] = topic_df["topic_context"].apply(clean_text)
 
 
 ####Text final 
-topic_df["final_text"] = topic_df["topic_title"] + "[SEP]" + topic_df["topic_description"] + "[SEP]" + topic_df["topic_context"]
-topic_df["final_text_len"] = topic_df["final_text"].apply(lambda x: len(x.split()))
-print('final topic', topic_df["final_text_len"].describe())
+topic_df["topic_final_text"] = topic_df["topic_title"] + "[SEP]" + topic_df["topic_description"] + "[SEP]" + topic_df["topic_context"]
+topic_df["topic_final_text_len"] = topic_df["topic_final_text"].apply(lambda x: len(x.split()))
+print('final topic', topic_df["topic_final_text_len"].describe())
 
 content_df["content_title"].fillna("", inplace=True)
 content_df["content_title"] = content_df["content_title"].apply(clean_text)
@@ -95,9 +95,9 @@ content_df["content_description"] = content_df["content_description"].apply(clea
 # print('text content', content_df["content_text_len"].describe())
 content_df["content_text"] = [x[:300] for x in content_df["content_text"]]
 
-content_df["final_text"] = content_df["content_title"] + "[SEP]" + content_df["content_description"] + "[SEP]" + content_df["content_text"]
-content_df["final_text_len"] = content_df["final_text"].apply(lambda x: len(x.split()))
-print('final content', content_df["final_text_len"].describe())
+content_df["content_final_text"] = content_df["content_title"] + "[SEP]" + content_df["content_description"] + "[SEP]" + content_df["content_text"]
+content_df["content_final_text_len"] = content_df["content_final_text"].apply(lambda x: len(x.split()))
+print('final content', content_df["content_final_text_len"].describe())
 
 print()
 # `exploded` has one topic id and one content id per row
