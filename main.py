@@ -1,11 +1,12 @@
-
+from kaggly.model import KagglyModel
+from kaggly.custom_dataset import KagglyDataset
+from kaggly.metric import KagglyEvaluate
+from transformers import TrainingArguments, Trainer
 
 if __name__ == "__main__":
     id2label = {0: "NEGATIVE", 1: "POSITIVE"}
     label2id = {"NEGATIVE": 0, "POSITIVE": 1}
-    tokenizer= AutoTokenizer.from_pretrained("vinai/phobert-base")
-    model = AutoModelForSequenceClassification.from_pretrained("vinai/phobert-base",
-                                                               num_labels=2, id2label=id2label, label2id=label2id)
+    model = KagglyModel.from_pretrained("vinai/phobert-base", num_labels=2, id2label=id2label, label2id=label2id)
     # Freeze the pretrained BERT layers
     #for param in model.base_model.parameters():
     #    param.requires_grad = False
@@ -21,33 +22,8 @@ if __name__ == "__main__":
         save_strategy="epoch",
         load_best_model_at_end=True,
     )
-    data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
-
-    ds = read_data_tok()
-    lb = read_label_tok()
-
-    random.seed(42)
-    val_cluster = pick_subset_by_percentage(ds.keys(), 20)
-    print(val_cluster)
-    with open('val_cluster.pkl', 'wb') as file:
-        pickle.dump(val_cluster, file)
-    texts = []
-    labels = []
-    clusters = []
-    for k,v in ds.items():
-        for sentence in v:
-            if sentence in lb[k]:
-                labels.append(1)
-            else:
-                labels.append(0)
-            texts.append(sentence)
-            clusters.append(k)
-    df = pd.DataFrame({"text": texts, "label": labels, "cluster": clusters})
-    print(df.shape)
-    print(df["label"].value_counts())
-
-    ds_train = custom_dataset(df[~df["cluster"].isin(val_cluster)], tokenizer)
-    ds_val = custom_dataset(df[df["cluster"].isin(val_cluster)], tokenizer)
+    ds_train = KagglyDataset()
+    ds_val = KagglyDataset()
     
     trainer = Trainer(
         model=model,

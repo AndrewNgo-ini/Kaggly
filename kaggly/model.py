@@ -1,4 +1,7 @@
+import torch.nn as nn
+import torch
 
+from transformers import AutoConfig, AutoModel
 
 class MeanPooling(nn.Module):
     def __init__(self):
