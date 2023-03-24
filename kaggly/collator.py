@@ -1,4 +1,3 @@
-%%writefile collator.py
 
 from dataclasses import dataclass
 

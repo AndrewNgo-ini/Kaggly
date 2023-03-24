@@ -1,10 +1,9 @@
-%%writefile metric.py
 
 import evaluate
 import datasets
 import numpy as np
 
-from utils import compute_metrics
+from core.utils import compute_metrics
 
 class RecallAtK(evaluate.Metric):
     """Computes recall@k for a given k."""
